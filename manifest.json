@@ -1,0 +1,17 @@
+{
+  "name": "Sổ Nhiệm Vụ Nội Trú — 120 Bài · 3 Vòng",
+  "short_name": "Nội trú",
+  "description": "Checklist ôn thi BSNT 120 bài, 6 môn, lộ trình 3 vòng",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f1e6d3",
+  "theme_color": "#f1e6d3",
+  "lang": "vi",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

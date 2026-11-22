@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sổ Nhiệm Vụ Nội Trú — 120 Bài · 3 Vòng</title>
+<meta name="description" content="Checklist ôn thi BSNT 120 bài, 6 môn, lộ trình 3 vòng">
+<meta name="theme-color" content="#f1e6d3">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Nội trú">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=Silkscreen:wght@400;700&display=swap">
+<style>
+/* Layout: sổ nhiệm vụ giấy cũ kiểu Pokémon. Một cột hẹp, giấy vàng ngà, mực nâu đỏ,
+   checkbox vuông, chữ gạch ngang khi xong. Cam kết một theme (sáng, giấy cổ). */
+:root {
+  --paper: #f1e6d3;
+  --paper2: #e6d7b8;
+  --card: #f6ecda;
+  --ink: #3a2a1e;
+  --ink-soft: #8a7558;
+  --line: #c9ad80;
+  --line2: #3a2a1e;
+  --quest: #7a1f1f;
+  --due: #a35a00;
+  --ok: #2e6b3e;
+  --ngoai: #2f5d62;
+  --san: #7a1f1f;
+  --giaiphau: #2a4d69;
+  --sinhly: #8b3a3a;
+  --hoasinh: #4a5d23;
+  --ditruyen: #5c3d6e;
+  --paperlight: #f6ecda;
+  --font: "VT323", ui-monospace, "Courier New", monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body {
+  background: var(--paper);
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(58,42,30,.05), transparent 40%),
+    radial-gradient(circle at 90% 85%, rgba(58,42,30,.06), transparent 45%);
+  color: var(--ink);
+  font: 400 19px/1.3 var(--font);
+  padding-block: 18px 48px;
+  padding-left: max(14px, env(safe-area-inset-left, 0px));
+  padding-right: max(14px, env(safe-area-inset-right, 0px));
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+.wrap { max-width: 660px; margin: 0 auto; display: flex; flex-direction: column; gap: 13px; }
+button, select { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px dashed var(--quest); outline-offset: 2px; }
+
+/* Alert Banner khi hết giờ vòng */
+.alarm-banner {
+  background: #fdf2e6;
+  border: 2px solid var(--quest);
+  box-shadow: 3px 3px 0 var(--quest);
+  border-radius: 6px;
+  padding: 11px 14px;
+  display: grid;
+  gap: 8px;
+}
+.alarm-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.alarm-head strong { color: var(--quest); font: 700 16px Silkscreen, var(--font); }
+.alarm-body { font-size: 16px; color: var(--ink); }
+.alarm-actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.btn-pk {
+  background: var(--paper2); border: 2px solid var(--line2); border-radius: 3px;
+  padding: 3px 10px; font-size: 15px;
+}
+.btn-pk:hover { background: var(--quest); color: var(--paperlight); border-color: var(--quest); }
+.btn-pk.primary { background: var(--quest); color: var(--paperlight); border-color: var(--line2); }
+.btn-pk.primary:hover { opacity: 0.9; }
+
+/* Header */
+.top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h1 { margin: 0; font: 700 21px Silkscreen, var(--font); letter-spacing: .02em; color: var(--quest); text-wrap: balance; }
+.sub { color: var(--ink-soft); font-size: 15px; margin-top: 2px; }
+.top-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.sound-btn {
+  background: var(--card); border: 2px solid var(--line2); border-radius: 4px;
+  padding: 2px 8px; font-size: 14px; color: var(--ink-soft);
+}
+.sound-btn.on { color: var(--ok); border-color: var(--ok); background: #edf5ef; }
+
+/* Round Tabs (3 Vòng lớn) */
+.round-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.rtab {
+  background: var(--card); border: 2px solid var(--line2); border-radius: 6px;
+  padding: 8px 10px; text-align: left; display: flex; flex-direction: column; gap: 2px;
+  box-shadow: 2px 2px 0 var(--line); position: relative;
+}
+.rtab[aria-selected=true] {
+  background: var(--quest); color: var(--paperlight); border-color: var(--line2);
+  box-shadow: 2px 2px 0 var(--line2);
+}
+.rtab-title { font: 700 14px Silkscreen, var(--font); display: flex; justify-content: space-between; align-items: center; }
+.rtab-sub { font-size: 14px; opacity: 0.88; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rtab-meta { font-size: 14px; display: flex; justify-content: space-between; margin-top: 2px; opacity: 0.92; }
+.rtab.overdue:not([aria-selected=true]) { border-color: var(--due); }
+.rtab .badge-over {
+  background: var(--due); color: var(--paperlight); font-size: 12px; padding: 0 5px; border-radius: 3px; font-family: var(--font);
+}
+.rtab[aria-selected=true] .badge-over { background: var(--paperlight); color: var(--quest); }
+
+/* Round Clock & Summary Box */
+.sum {
+  background: var(--card); border: 2px solid var(--line2); border-radius: 6px;
+  padding: 12px 14px; display: grid; gap: 10px; box-shadow: 2px 2px 0 var(--line);
+}
+.clock-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  padding-bottom: 8px; border-bottom: 2px dashed var(--line);
+}
+.clock-left { display: flex; flex-direction: column; gap: 2px; }
+.clock-label { font-size: 14px; color: var(--ink-soft); }
+.clock-val { font: 700 20px Silkscreen, var(--font); color: var(--quest); letter-spacing: 0.02em; }
+.clock-val.over { color: var(--due); }
+.clock-right { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-soft); }
+.clock-right input[type=date] {
+  background: var(--paper); color: var(--ink); border: 2px solid var(--line2); border-radius: 3px;
+  font: inherit; font-size: 15px; padding: 2px 6px; color-scheme: light;
+}
+
+.sum-bars { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sum-box { display: grid; gap: 4px; }
+.sum-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.sum-head b { font-size: 21px; color: var(--quest); }
+.sum-head span { color: var(--ink-soft); font-size: 14px; }
+.bar { height: 10px; border: 2px solid var(--line2); background: var(--paper2); border-radius: 2px; overflow: hidden; padding: 1px; }
+.bar > i { display: block; height: 100%; background: var(--c, var(--quest)); border-radius: 1px; transition: width .25s ease; }
+
+/* Mini 6 subjects progress */
+.sub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding-top: 2px; }
+.sub-mini {
+  background: var(--paper); border: 1.5px solid var(--line); border-radius: 4px;
+  padding: 4px 8px; display: grid; gap: 3px; text-align: left;
+}
+.sub-mini.active { border: 2px solid var(--c, var(--line2)); background: var(--paper2); }
+.sub-mini p { margin: 0; display: flex; justify-content: space-between; font-size: 14px; color: var(--c); }
+.sub-mini .bar { height: 7px; border-width: 1.5px; }
+
+/* Due panel (Vòng 2 spaced repetition) */
+.due { border: 2px dashed var(--line2); border-radius: 6px; padding: 9px 13px; display: grid; gap: 7px; background: var(--card); }
+.due.has { border-style: solid; border-color: var(--due); box-shadow: 2px 2px 0 var(--line); }
+.due h2 { margin: 0; font-size: 16px; font-weight: 400; display: flex; align-items: center; gap: 8px; color: var(--quest); letter-spacing: .03em; }
+.due h2::before { content: "⚑"; }
+.due h2 em { font-style: normal; background: var(--due); color: var(--paperlight); border-radius: 99px; padding: 0 8px; font-size: 14px; }
+.due p { margin: 0; color: var(--ink-soft); font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { background: var(--paper2); border: 2px solid var(--line2); border-radius: 3px; padding: 2px 8px; font-size: 15px; text-align: left; }
+.chip:hover { background: var(--due); color: var(--paperlight); border-color: var(--due); }
+.chip small { color: var(--due); margin-left: 4px; }
+.chip:hover small { color: var(--paperlight); }
+
+/* Filters & Pair Selector */
+.filter-panel {
+  background: var(--card); border: 2px solid var(--line2); border-radius: 6px;
+  padding: 9px 12px; display: grid; gap: 8px; box-shadow: 2px 2px 0 var(--line);
+}
+.filter-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.pair-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+.pill {
+  background: var(--paper); border: 2px solid var(--line2); border-radius: 4px;
+  padding: 3px 9px; font-size: 15px; color: var(--ink);
+}
+.pill[aria-pressed=true] { background: var(--ink); color: var(--paperlight); }
+
+.subj-tabs { display: flex; flex-wrap: wrap; gap: 4px; }
+.stab {
+  background: var(--paper); border: 2px solid var(--line2); border-radius: 4px;
+  padding: 3px 9px; color: var(--c); font-size: 15px;
+}
+.stab[aria-selected=true] { color: var(--paperlight); background: var(--c); }
+.stab small { opacity: .85; margin-left: 4px; }
+
+.status-filters { display: flex; gap: 4px; flex-wrap: wrap; }
+.status-filters button {
+  background: transparent; border: 0; border-bottom: 2px dashed transparent;
+  padding: 2px 6px; color: var(--ink-soft); font-size: 15px;
+}
+.status-filters button[aria-pressed=true] { color: var(--quest); border-bottom-color: var(--quest); font-weight: bold; }
+
+/* Subject Colors */
+.sub-ngoai { --c: var(--ngoai); }
+.sub-san { --c: var(--san); }
+.sub-giaiphau { --c: var(--giaiphau); }
+.sub-sinhly { --c: var(--sinhly); }
+.sub-hoasinh { --c: var(--hoasinh); }
+.sub-ditruyen { --c: var(--ditruyen); }
+
+/* List */
+.list { display: flex; flex-direction: column; gap: 10px; }
+.grp { background: var(--card); border: 2px solid var(--line2); border-radius: 6px; overflow: hidden; box-shadow: 2px 2px 0 var(--line); }
+.gh, .row-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 8px; }
+.gh { padding: 7px 12px; border-bottom: 2px dashed var(--line2); background: var(--paper2); }
+.gh strong { font-size: 16px; font-weight: 400; color: var(--c); letter-spacing: .02em; }
+.gh strong::before { content: "· · · "; }
+.gh strong span { color: var(--ink-soft); font-weight: 400; margin-left: 6px; }
+.gh .pair-tag { font-size: 13px; color: var(--ink-soft); display: block; margin-top: 1px; }
+
+.cells { display: grid; grid-template-columns: repeat(3, 52px); gap: 6px; }
+.legend span { font-size: 13px; color: var(--ink-soft); text-align: center; white-space: nowrap; }
+
+.row { border-top: 2px dashed var(--line); }
+.row:first-of-type { border-top: 0; }
+.row.hard-row { background: rgba(163, 90, 0, 0.05); }
+.row-main { padding: 6px 12px; }
+.ttl { background: none; border: 0; text-align: left; display: flex; gap: 8px; padding: 3px 0; min-width: 0; align-items: flex-start; }
+.idx { color: var(--ink-soft); width: 20px; flex: none; text-align: right; font-size: 15px; padding-top: 2px; }
+.tx { min-width: 0; overflow-wrap: anywhere; font-size: 17px; line-height: 1.25; }
+.tx small { display: block; color: var(--ink-soft); font-size: 14px; line-height: 1.3; margin-top: 1px; }
+.badge-hard {
+  display: inline-block; background: var(--due); color: var(--paperlight);
+  font-size: 12px; padding: 0 5px; border-radius: 3px; margin-left: 6px; vertical-align: middle;
+}
+.note-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--quest); margin-left: 6px; vertical-align: middle; }
+.row.done .tx { color: var(--ink-soft); text-decoration: line-through; text-decoration-color: var(--line2); text-decoration-thickness: 2px; }
+
+.cell {
+  width: 52px; height: 27px; border-radius: 3px; border: 2px solid var(--line2); background: var(--paper);
+  display: grid; place-items: center; padding: 0; color: var(--paperlight);
+}
+.cell:hover { background: var(--paper2); }
+.cell[aria-pressed=true] { background: var(--c); border-color: var(--c); }
+.cell.due { border-color: var(--due); box-shadow: 0 0 0 2px color-mix(in srgb, var(--due) 35%, transparent); }
+.cell.wait { border-style: dashed; }
+.cell svg { width: 14px; height: 14px; }
+
+/* Detail Drawer */
+.detail { padding: 4px 12px 12px 38px; display: grid; gap: 8px; background: rgba(230, 215, 184, 0.35); border-top: 1px dashed var(--line); }
+.detail-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.detail p { margin: 0; color: var(--ink-soft); font-size: 15px; }
+.lv-toggle { display: flex; gap: 4px; align-items: center; font-size: 14px; color: var(--ink-soft); }
+.lv-btn {
+  background: var(--paper); border: 1.5px solid var(--line2); border-radius: 3px;
+  padding: 1px 8px; font-size: 14px;
+}
+.lv-btn.active-norm { background: var(--ink); color: var(--paperlight); }
+.lv-btn.active-hard { background: var(--due); color: var(--paperlight); border-color: var(--due); }
+.round-mini-stat { font-size: 14px; color: var(--ink-soft); display: flex; gap: 10px; flex-wrap: wrap; }
+.detail textarea {
+  width: 100%; min-height: 62px; resize: vertical; background: var(--paper); color: var(--ink);
+  border: 2px solid var(--line2); border-radius: 4px; padding: 8px; font: inherit; font-size: 16px;
+}
+.detail textarea:focus { outline: 2px dashed var(--quest); outline-offset: 1px; }
+
+.src { color: var(--ink-soft); font-size: 14px; padding: 8px 12px; border-top: 2px dashed var(--line2); background: var(--paper2); }
+.empty { color: var(--ink-soft); text-align: center; padding: 22px 10px; border: 2px dashed var(--line2); border-radius: 6px; font-size: 16px; background: var(--card); }
+
+/* Footer & Backup */
+.foot {
+  color: var(--ink-soft); font-size: 14px; display: flex; justify-content: space-between;
+  align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 4px;
+}
+.backup-btns { display: flex; gap: 6px; }
+.backup-btns button {
+  background: var(--card); border: 1.5px solid var(--line2); border-radius: 3px;
+  padding: 2px 8px; font-size: 14px; color: var(--ink);
+}
+.backup-btns button:hover { background: var(--paper2); }
+
+@media (max-width: 520px) {
+  .round-tabs { grid-template-columns: 1fr; }
+  .sum-bars { grid-template-columns: 1fr; }
+  .sub-grid { grid-template-columns: repeat(2, 1fr); }
+  .cells { grid-template-columns: repeat(3, 42px); gap: 4px; }
+  .cell { width: 42px; }
+}
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+
+.install { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--card);
+  border: 2px dashed var(--line2); border-radius: 6px; padding: 8px 12px; font-size: 15px; }
+.install button { background: var(--quest); color: var(--paperlight); border: 2px solid var(--line2); border-radius: 4px; padding: 4px 12px; font-size: 15px; cursor: pointer; }
+.install .x { background: none; border: 0; color: var(--ink-soft); font-size: 18px; line-height: 1; padding: 0 2px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="install" id="installBar" style="display:none">
+    <span>Cài app này vào máy để mở như ứng dụng riêng, dùng được cả khi mất mạng.</span>
+    <span style="display:flex;gap:6px;align-items:center">
+      <button id="installBtn">Cài đặt</button>
+      <button class="x" id="installClose" aria-label="Đóng">×</button>
+    </span>
+  </div>
+  <div class="wrap" id="app"></div>
+</div>
+<input type="file" id="import-file" accept=".json" style="display:none">
+
+<script>
+(function () {
+  var DAY = 864e5;
+  var HOUR = 36e5;
+  var MIN = 6e4;
+
+  var ROUNDS = [
+    {
+      id: "r1",
+      short: "Vòng 1",
+      title: "Vòng 1: Nắm khung",
+      desc: "Nắm khung sườn, vẽ sơ đồ & MCQ lần 1",
+      defaultDeadline: "2027-04-15",
+      steps: [
+        { k: "Khung", n: "Đọc lướt khung sườn & mục tiêu bài" },
+        { k: "Sơ đồ", n: "Đọc hiểu & vẽ sơ đồ / bảng tóm tắt" },
+        { k: "MCQ 1", n: "Làm 15–20 câu trắc nghiệm lần 1 & chốt ý sai" }
+      ]
+    },
+    {
+      id: "r2",
+      short: "Vòng 2",
+      title: "Vòng 2: Lấp lỗ hổng",
+      desc: "Tự thuật kiến thức, đề sâu & nhắc ôn 3·7 ngày",
+      defaultDeadline: "2027-06-15",
+      steps: [
+        { k: "Tự thuật", n: "Ôn sơ đồ tóm tắt & tự thuật ý chính (không nhìn sách)" },
+        { k: "Đề sâu", n: "Làm bộ câu hỏi vận dụng / tình huống lâm sàng", gap: 3 },
+        { k: "Chốt bẫy", n: "Rà lại câu sai & điểm dễ nhầm của bài", gap: 7 }
+      ]
+    },
+    {
+      id: "r3",
+      short: "Vòng 3",
+      title: "Vòng 3: Nước rút",
+      desc: "Tổng ôn tốc độ, đề trộn & chốt điểm mù",
+      defaultDeadline: "2027-08-01",
+      steps: [
+        { k: "Tốc độ", n: "Rà nhanh bảng so sánh / phác đồ / cơ chế cốt lõi" },
+        { k: "Đề trộn", n: "Hoàn thành câu hỏi bài này trong đề thi thử tổng hợp" },
+        { k: "Sẵn sàng", n: "Chốt hạ lần cuối trước ngày thi (không còn điểm mù)" }
+      ]
+    }
+  ];
+
+  var PAIRS = [
+    { id: "all", label: "Tất cả 6 môn (120 bài)" },
+    { id: "gp-ngoai", label: "Cặp 1: Giải phẫu + Ngoại" },
+    { id: "sl-san", label: "Cặp 2: Sinh lý + Sản" },
+    { id: "hs-dt", label: "Cặp 3: Hóa sinh + Di truyền" }
+  ];
+
+  var SUBJECTS = [
+    {
+      id: "ngoai", name: "Ngoại khoa", shortName: "Ngoại khoa", cls: "sub-ngoai", pair: "gp-ngoai",
+      pairName: "Cặp 1: Giải phẫu + Ngoại khoa",
+      src: "Tài liệu: Giáo trình Ngoại cơ sở Module 18.1; Ngoại Bệnh lý Module 18.3; Bệnh lý & điều trị ngoại khoa Module 30.1.",
+      items: [
+        ["a1", "Bệnh lý ruột thừa viêm"],
+        ["a2", "Bệnh lý dị dạng hậu môn trực tràng"],
+        ["a3", "Bệnh lý sỏi ống mật chủ"],
+        ["a4", "Bệnh lý ung thư đường tiêu hóa"],
+        ["a5", "Bệnh lý ung thư gan mật tụy"],
+        ["a6", "Bệnh lý thoát vị bẹn"],
+        ["a7", "Bệnh lý chấn thương bụng kín"],
+        ["a8", "Xuất huyết tiêu hóa"],
+        ["a9", "Bệnh lý lồng ruột cấp ở trẻ bú mẹ"],
+        ["b1", "Gãy xương hở"],
+        ["b2", "Bệnh lý gãy xương chi trên"],
+        ["b3", "Bệnh lý gãy xương chi dưới"],
+        ["b4", "Hội chứng chèn ép khoang"],
+        ["c1", "Bệnh lý sỏi, viêm nhiễm hệ tiết niệu"],
+        ["c2", "Bệnh lý tuyến tiền liệt"],
+        ["c3", "Bệnh lý chấn thương thận"],
+        ["c4", "Bệnh lý u hệ tiết niệu"],
+        ["d1", "Bệnh lý chấn thương ngực"],
+        ["d2", "Bệnh lý ung thư phế quản phổi"],
+        ["d3", "Chấn thương, vết thương hở sọ não"]
+      ]
+    },
+    {
+      id: "san", name: "Sản Phụ khoa", shortName: "Sản Phụ khoa", cls: "sub-san", pair: "sl-san",
+      pairName: "Cặp 2: Sinh lý + Sản Phụ khoa",
+      src: "Tài liệu: Giáo trình Module 19 (Phụ Sản 1), NXB Đại học Huế 2023; Module 31 (Phụ Sản 2), NXB Đại học Huế 2024.",
+      items: [
+        ["s1", "Sinh lý thụ tinh làm tổ và phát triển của phôi"],
+        ["s2", "Sự thay đổi giải phẫu - sinh lý người mẹ trong thai kỳ"],
+        ["s3", "Đặc điểm trẻ sơ sinh đủ tháng, non tháng, già tháng và hồi sức sơ sinh"],
+        ["s4", "Thất bại thai kỳ. Chảy máu từ tử cung ở 3 tháng đầu thai kỳ", "Thai trứng, thai chết trong tử cung, thai lạc chỗ, dọa sẩy thai"],
+        ["s5", "Hậu sản thường và nhiễm trùng hậu sản", "Các biện pháp tránh thai"],
+        ["s6", "Chảy máu từ tử cung ở 3 tháng cuối thai kỳ", "Nhau tiền đạo, nhau bong non, vỡ tử cung"],
+        ["s7", "Tính chất phần phụ đủ tháng", "Bánh nhau, dây rốn, nước ối"],
+        ["s8", "Các yếu tố tiên lượng cuộc đẻ. Sinh khó do các nguyên nhân"],
+        ["s9", "Suy thai"],
+        ["s10", "Song thai"],
+        ["s11", "Băng huyết sau sinh"],
+        ["s12", "Tiền sản giật - sản giật"],
+        ["s13", "Đái tháo đường và thai kỳ"],
+        ["s14", "Viêm nhiễm sinh dục thấp"],
+        ["s15", "Lạc nội mạc tử cung"],
+        ["s16", "Khối u buồng trứng"],
+        ["s17", "U xơ cơ tử cung"],
+        ["s18", "Chảy máu bất thường từ tử cung"],
+        ["s19", "Sàng lọc và xử trí tổn thương tiền ung thư - ung thư cổ tử cung"],
+        ["s20", "Đại cương vô sinh"]
+      ]
+    },
+    {
+      id: "giaiphau", name: "Giải phẫu", shortName: "Giải phẫu", cls: "sub-giaiphau", pair: "gp-ngoai",
+      pairName: "Cặp 1: Giải phẫu + Ngoại khoa",
+      src: "Trọng tâm: Giải phẫu định khu & hệ thống (Chi trên/dưới, Đầu mặt cổ, Ngực, Bụng - Chậu hông, Thần kinh - Giác quan).",
+      items: [
+        ["gp1", "Xương và khớp chi trên"],
+        ["gp2", "Cơ, mạch máu và thần kinh chi trên"],
+        ["gp3", "Xương và khớp chi dưới"],
+        ["gp4", "Cơ, mạch máu và thần kinh chi dưới"],
+        ["gp5", "Xương đầu mặt cổ và các cơ vùng đầu mặt cổ"],
+        ["gp6", "Mạch máu và thần kinh vùng đầu mặt cổ"],
+        ["gp7", "Tim và màng ngoài tim"],
+        ["gp8", "Khí quản, phế quản, phổi và màng phổi"],
+        ["gp9", "Trung thất và cơ hoành"],
+        ["gp10", "Thành bụng trước bên và ống bẹn"],
+        ["gp11", "Phúc mạc và phân khu ổ bụng"],
+        ["gp12", "Thực quản, dạ dày và tá tràng"],
+        ["gp13", "Tiểu tràng, đại tràng và trực tràng - hậu môn"],
+        ["gp14", "Gan, đường mật ngoài gan, tụy và lách"],
+        ["gp15", "Thận, niệu quản, bàng quang và niệu đạo"],
+        ["gp16", "Cơ quan sinh dục nam và cơ quan sinh dục nữ"],
+        ["gp17", "Tủy gai và các dây thần kinh gai sống"],
+        ["gp18", "Thân não, tiểu não và gian não"],
+        ["gp19", "Đoan não, màng não và mạch máu não"],
+        ["gp20", "12 đôi dây thần kinh sọ và các giác quan (mắt, tai)"]
+      ]
+    },
+    {
+      id: "sinhly", name: "Sinh lý học", shortName: "Sinh lý học", cls: "sub-sinhly", pair: "sl-san",
+      pairName: "Cặp 2: Sinh lý + Sản Phụ khoa",
+      src: "Trọng tâm: Cơ chế điều hòa chức năng các hệ cơ quan (Tế bào, Máu, Tim mạch, Hô hấp, Tiêu hóa, Thận, Nội tiết, Sinh sản, Thần kinh).",
+      items: [
+        ["sl1", "Sinh lý vận chuyển vật chất qua màng tế bào và điện thế màng"],
+        ["sl2", "Sinh lý máu (Hồng cầu, nhóm máu, bạch cầu, tiểu cầu và đông cầm máu)"],
+        ["sl3", "Sinh lý hoạt động điện và chu chuyển tim"],
+        ["sl4", "Sinh lý tuần hoàn động mạch, mao mạch, tĩnh mạch và điều hòa huyết áp"],
+        ["sl5", "Sinh lý thông khí phổi và trao đổi khí tại phổi"],
+        ["sl6", "Sinh lý vận chuyển khí trong máu và điều hòa hô hấp"],
+        ["sl7", "Sinh lý tiêu hóa ở miệng, thực quản và dạ dày"],
+        ["sl8", "Sinh lý tiêu hóa ở ruột non, ruột già và chức năng gan mật"],
+        ["sl9", "Chuyển hóa năng lượng và điều hòa thân nhiệt"],
+        ["sl10", "Sinh lý lọc tại cầu thận"],
+        ["sl11", "Sinh lý tái hấp thu, bài tiết ở ống thận và điều hòa thăng bằng nội môi"],
+        ["sl12", "Đại cương hệ nội tiết, vùng dưới đồi và tuyến yên"],
+        ["sl13", "Sinh lý tuyến giáp và tuyến cận giáp"],
+        ["sl14", "Sinh lý tuyến thượng thận và tuyến tụy nội tiết"],
+        ["sl15", "Sinh lý sinh sản nam"],
+        ["sl16", "Sinh lý sinh sản nữ (Chu kỳ kinh nguyệt, thai nghén và tiết sữa)"],
+        ["sl17", "Sinh lý cảm giác thân thể và các giác quan"],
+        ["sl18", "Sinh lý vận động của tủy sống, thân não, tiểu não và vỏ não"],
+        ["sl19", "Sinh lý hệ thần kinh tự chủ"],
+        ["sl20", "Chức năng cao cấp của hệ thần kinh"]
+      ]
+    },
+    {
+      id: "hoasinh", name: "Hóa sinh", shortName: "Hóa sinh", cls: "sub-hoasinh", pair: "hs-dt",
+      pairName: "Cặp 3: Hóa sinh + Y sinh học di truyền",
+      src: "Trọng tâm: Cấu tạo - chuyển hóa các đại phân tử, enzyme, năng lượng sinh học và hóa sinh lâm sàng cơ quan.",
+      items: [
+        ["hs1", "Cấu tạo, tính chất của Acid amin, Peptid và Protein"],
+        ["hs2", "Enzyme và động học xúc tác enzyme"],
+        ["hs3", "Năng lượng sinh học và chuỗi hô hấp tế bào"],
+        ["hs4", "Hóa học và chuyển hóa Glucid (Đường phân, chu trình Krebs, tân tạo đường)"],
+        ["hs5", "Chuyển hóa Glycogen và điều hòa đường huyết"],
+        ["hs6", "Hóa học và chuyển hóa Lipid (Thoái hóa và tổng hợp acid béo)"],
+        ["hs7", "Chuyển hóa Cholesterol và Lipoprotein huyết tương"],
+        ["hs8", "Thoái hóa chung của Acid amin và chu trình Urê"],
+        ["hs9", "Chuyển hóa một số Acid amin chuyên biệt"],
+        ["hs10", "Hóa học và chuyển hóa Acid nucleic (Purin và Pyrimidin)"],
+        ["hs11", "Sinh tổng hợp ADN, ARN và Protein (Tái bản, phiên mã, dịch mã)"],
+        ["hs12", "Hóa học và chuyển hóa Hemoglobin (Tổng hợp và thoái hóa Hem)"],
+        ["hs13", "Hóa sinh gan (Chức năng chuyển hóa và khử độc của gan)"],
+        ["hs14", "Hóa sinh thận và nước tiểu"],
+        ["hs15", "Hóa sinh máu và các protein huyết tương"],
+        ["hs16", "Cân bằng nước và các chất điện giải"],
+        ["hs17", "Cân bằng acid - base (Thăng bằng toan kiềm)"],
+        ["hs18", "Hóa sinh hormon và cơ chế tác dụng của hormon"],
+        ["hs19", "Vitamin và các yếu tố vi lượng"],
+        ["hs20", "Hóa sinh mô liên kết, cơ và thần kinh"]
+      ]
+    },
+    {
+      id: "ditruyen", name: "Y sinh học di truyền", shortName: "Di truyền", cls: "sub-ditruyen", pair: "hs-dt",
+      pairName: "Cặp 3: Hóa sinh + Y sinh học di truyền",
+      src: "Trọng tâm: Di truyền phân tử, di truyền tế bào, quy luật di truyền y học, bệnh học di truyền & chẩn đoán trước sinh.",
+      items: [
+        ["dt1", "Cơ sở vật chất di truyền ở cấp độ phân tử (ADN, ARN, gen)"],
+        ["dt2", "Tổ chức bộ gen người và điều hòa hoạt động gen"],
+        ["dt3", "Nhiễm sắc thể người và bộ nhiễm sắc thể bình thường"],
+        ["dt4", "Chu kỳ tế bào, nguyên phân, giảm phân và phát sinh giao tử"],
+        ["dt5", "Đột biến gen: phân loại, cơ chế phát sinh và hậu quả"],
+        ["dt6", "Đột biến số lượng nhiễm sắc thể và các hội chứng thường gặp"],
+        ["dt7", "Đột biến cấu trúc nhiễm sắc thể và các hội chứng thường gặp"],
+        ["dt8", "Quy luật di truyền đơn gen trên nhiễm sắc thể thường (Trội, lặn)"],
+        ["dt9", "Di truyền liên kết giới tính (NST X, Y) và di truyền ngoài nhân (Ty thể)"],
+        ["dt10", "Di truyền đa nhân tố và bệnh lý di truyền phổ biến"],
+        ["dt11", "Di truyền quần thể và định luật Hardy - Weinberg"],
+        ["dt12", "Di truyền miễn dịch và hệ nhóm máu (ABO, Rh, HLA)"],
+        ["dt13", "Di truyền học ung thư (Gen sinh ung thư và gen ức chế khối u)"],
+        ["dt14", "Rối loạn chuyển hóa bẩm sinh do di truyền"],
+        ["dt15", "Di truyền dược lý (Pharmacogenetics)"],
+        ["dt16", "Các kỹ thuật di truyền tế bào và di truyền phân tử (PCR, giải trình tự, microarray)"],
+        ["dt17", "Sàng lọc và chẩn đoán trước sinh, chẩn đoán tiền làm tổ"],
+        ["dt18", "Tư vấn di truyền và lập cây phả hệ"],
+        ["dt19", "Liệu pháp gen, tế bào gốc và ứng dụng trong y học"],
+        ["dt20", "Đạo đức sinh học trong di truyền y học"]
+      ]
+    }
+  ];
+
+  // Trạng thái dữ liệu (v2 hỗ trợ 3 vòng + tương thích ngược v1)
+  var S = {
+    v: 2,
+    deadlines: {
+      r1: "2027-04-15",
+      r2: "2027-06-15",
+      r3: "2027-08-01"
+    },
+    l: {} // id -> { r1:[t,t,t], r2:[t,t,t], r3:[t,t,t], n:"", lv:"norm"|"hard" }
+  };
+
+  var UI = {
+    round: "r1",
+    pair: "all",
+    subj: "ngoai",
+    filter: "all",
+    open: {},
+    sound: false,
+    dismissedAlarm: {}
+  };
+
+  var CK = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+
+  // Migrate dữ liệu cũ v1 (t: [6 phần tử]) sang v2 (r1, r2, r3)
+  function migrateRecord(raw) {
+    if (!raw) return { r1: [null, null, null], r2: [null, null, null], r3: [null, null, null], n: "", lv: "norm" };
+    if (raw.r1 && raw.r2 && raw.r3) {
+      return {
+        r1: [raw.r1[0] || null, raw.r1[1] || null, raw.r1[2] || null],
+        r2: [raw.r2[0] || null, raw.r2[1] || null, raw.r2[2] || null],
+        r3: [raw.r3[0] || null, raw.r3[1] || null, raw.r3[2] || null],
+        n: raw.n || "",
+        lv: raw.lv === "hard" ? "hard" : "norm"
+      };
+    }
+    if (Array.isArray(raw.t)) {
+      return {
+        r1: [raw.t[0] || null, raw.t[1] || null, raw.t[2] || null],
+        r2: [raw.t[3] || null, raw.t[4] || null, null],
+        r3: [raw.t[5] || null, null, null],
+        n: raw.n || "",
+        lv: raw.lv === "hard" ? "hard" : "norm"
+      };
+    }
+    return { r1: [null, null, null], r2: [null, null, null], r3: [null, null, null], n: raw.n || "", lv: "norm" };
+  }
+
+  function hydrateData(d) {
+    if (!d) return;
+    if (d.deadlines) {
+      S.deadlines.r1 = d.deadlines.r1 || S.deadlines.r1;
+      S.deadlines.r2 = d.deadlines.r2 || S.deadlines.r2;
+      S.deadlines.r3 = d.deadlines.r3 || d.deadlines.r3;
+    } else if (d.exam) {
+      S.deadlines.r3 = d.exam;
+    }
+    var nextL = {};
+    if (d.l) {
+      Object.keys(d.l).forEach(function (k) {
+        nextL[k] = migrateRecord(d.l[k]);
+      });
+    }
+    S.l = nextL;
+  }
+
+  try {
+    var u = localStorage.getItem("ckl-ui-v2") || localStorage.getItem("ckl-ui");
+    if (u) {
+      var uu = JSON.parse(u);
+      if (uu.round && ["r1", "r2", "r3"].indexOf(uu.round) >= 0) UI.round = uu.round;
+      if (uu.pair) UI.pair = uu.pair;
+      if (uu.subj || uu.tab) UI.subj = uu.subj || uu.tab;
+      if (uu.filter) UI.filter = uu.filter;
+      if (typeof uu.sound === "boolean") UI.sound = uu.sound;
+    }
+  } catch (e) {}
+
+  try {
+    var s0 = localStorage.getItem("ckl-data-v2") || localStorage.getItem("ckl-data");
+    if (s0) hydrateData(JSON.parse(s0));
+  } catch (e) {}
+
+  function sod(t) { var d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
+  function eod(dateStr) {
+    var d = new Date(dateStr + "T23:59:59");
+    return isNaN(d.getTime()) ? null : d.getTime();
+  }
+  function fmt(t) { var d = new Date(t); return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2); }
+  function fmtY(t) { return fmt(t) + "/" + new Date(t).getFullYear(); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  function rec(id) {
+    if (!S.l[id]) return { r1: [null, null, null], r2: [null, null, null], r3: [null, null, null], n: "", lv: "norm" };
+    return S.l[id];
+  }
+  function ensure(id) {
+    if (!S.l[id]) S.l[id] = { r1: [null, null, null], r2: [null, null, null], r3: [null, null, null], n: "", lv: "norm" };
+    return S.l[id];
+  }
+
+  // Nhắc ôn ngắt quãng trong Vòng 2 (bước 1 & 2 của r2 cách 3 và 7 ngày sau bước 0)
+  function dueAtR2(r, i) {
+    if (i === 0) return null;
+    var arr = r.r2;
+    if (i === 1) {
+      if (!arr[0]) return null;
+      return sod(arr[0]) + 3 * DAY;
+    }
+    if (i === 2) {
+      if (!arr[1]) return null;
+      return sod(arr[1]) + 7 * DAY;
+    }
+    return null;
+  }
+
+  function nextReviewR2(r) {
+    for (var i = 1; i < 3; i++) {
+      if (!r.r2[i]) {
+        var d = dueAtR2(r, i);
+        return d == null ? null : { i: i, due: d };
+      }
+    }
+    return null;
+  }
+
+  function isDueR2(r) {
+    var n = nextReviewR2(r);
+    return n && n.due <= sod(Date.now()) ? n : null;
+  }
+
+  function allLessons() {
+    var out = [];
+    SUBJECTS.forEach(function (sb) {
+      sb.items.forEach(function (it, idx) {
+        out.push({ sb: sb, idx: idx + 1, id: it[0], title: it[1], sub: it[2] });
+      });
+    });
+    return out;
+  }
+
+  function roundStats(lessons, roundId) {
+    var totalCells = lessons.length * 3;
+    var doneCells = 0;
+    var completedLessons = 0;
+    lessons.forEach(function (l) {
+      var arr = rec(l.id)[roundId];
+      var c = (arr[0] ? 1 : 0) + (arr[1] ? 1 : 0) + (arr[2] ? 1 : 0);
+      doneCells += c;
+      if (c === 3) completedLessons++;
+    });
+    return {
+      pct: totalCells ? Math.round((doneCells / totalCells) * 100) : 0,
+      doneLessons: completedLessons,
+      n: lessons.length
+    };
+  }
+
+  function overallStats(lessons) {
+    var totalCells = lessons.length * 9;
+    var doneCells = 0;
+    lessons.forEach(function (l) {
+      var r = rec(l.id);
+      ["r1", "r2", "r3"].forEach(function (rid) {
+        doneCells += (r[rid][0] ? 1 : 0) + (r[rid][1] ? 1 : 0) + (r[rid][2] ? 1 : 0);
+      });
+    });
+    return {
+      pct: totalCells ? Math.round((doneCells / totalCells) * 100) : 0,
+      doneCells: doneCells,
+      totalCells: totalCells
+    };
+  }
+
+  // Âm báo nhẹ kiểu 8-bit Pokémon bằng Web Audio API
+  var audioCtx = null;
+  var playedSoundFor = {};
+  function playChime() {
+    if (!UI.sound) return;
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!audioCtx) audioCtx = new Ctx();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      var notes = [523.25, 659.25, 783.99, 1046.5];
+      notes.forEach(function (freq, idx) {
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = "square";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime + idx * 0.11);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + idx * 0.11 + 0.18);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + idx * 0.11);
+        osc.stop(audioCtx.currentTime + idx * 0.11 + 0.19);
+      });
+    } catch (e) {}
+  }
+
+  function triggerSystemNotify(roundObj) {
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "granted") {
+      try {
+        new Notification("Sổ Nhiệm Vụ Nội Trú — Hết giờ " + roundObj.short + "!", {
+          body: roundObj.title + " đã chạm mốc thời gian mục tiêu. Hãy kiểm tra tiến độ hoặc chuyển vòng."
+        });
+      } catch (e) {}
+    }
+  }
+
+  // Lưu trữ (localStorage + window.claude)
+  var ref = null, timer = null, writing = false, dirty = false;
+  var lastStatus = "Đang tải tiến độ…";
+  function setStatus(t) {
+    lastStatus = t;
+    var el = document.getElementById("status");
+    if (el) el.textContent = t;
+  }
+
+  function payload() {
+    var l = {};
+    Object.keys(S.l).forEach(function (k) {
+      var r = S.l[k];
+      if (!r) return;
+      var hasTick = (r.r1 && r.r1.some(Boolean)) || (r.r2 && r.r2.some(Boolean)) || (r.r3 && r.r3.some(Boolean));
+      if (hasTick || r.n || r.lv === "hard") {
+        l[k] = { r1: r.r1, r2: r.r2, r3: r.r3, n: r.n || "", lv: r.lv || "norm" };
+      }
+    });
+    return { v: 2, deadlines: S.deadlines, l: l };
+  }
+
+  function saveLocal() {
+    try { localStorage.setItem("ckl-data-v2", JSON.stringify(payload())); } catch (e) {}
+  }
+  function saveUI() {
+    try {
+      localStorage.setItem("ckl-ui-v2", JSON.stringify({
+        round: UI.round, pair: UI.pair, subj: UI.subj, filter: UI.filter, sound: UI.sound
+      }));
+    } catch (e) {}
+  }
+
+  function flush() {
+    if (!ref) return;
+    if (writing) { dirty = true; return; }
+    writing = true; dirty = false; setStatus("Đang lưu…");
+    ref.set(payload()).then(function () {
+      setStatus("Đã đồng bộ");
+    }, function () {
+      setStatus("Chưa lưu được lên cloud, đã giữ trên máy");
+    }).then(function () {
+      writing = false;
+      if (dirty) flush();
+    });
+  }
+
+  function persist() {
+    saveLocal();
+    if (!ref) { setStatus("Đã lưu trên máy"); return; }
+    setStatus("Chờ lưu…");
+    clearTimeout(timer);
+    timer = setTimeout(function () { timer = null; flush(); }, 600);
+  }
+
+  // Format đếm ngược realtime
+  function getCountdownInfo(roundId, pct) {
+    var target = eod(S.deadlines[roundId]);
+    if (!target) return { text: "Chưa đặt ngày", shortText: "—", overdue: false };
+    var diff = target - Date.now();
+    if (diff <= 0) {
+      var overDays = Math.floor(Math.abs(diff) / DAY);
+      var overHours = Math.floor((Math.abs(diff) % DAY) / HOUR);
+      return {
+        text: pct >= 100 ? "ĐÃ HOÀN THÀNH ĐÚNG HẠN!" : "HẾT GIỜ (" + (overDays > 0 ? "trễ " + overDays + " ngày " + overHours + "g" : "vừa quá hạn") + ")",
+        shortText: pct >= 100 ? "100% Xong" : "Hết giờ!",
+        overdue: pct < 100
+      };
+    }
+    var days = Math.floor(diff / DAY);
+    var hours = Math.floor((diff % DAY) / HOUR);
+    var mins = Math.floor((diff % HOUR) / MIN);
+    var secs = Math.floor((diff % MIN) / 1000);
+    return {
+      text: days + " ngày " + ("0" + hours).slice(-2) + "g " + ("0" + mins).slice(-2) + "p " + ("0" + secs).slice(-2) + "s",
+      shortText: "Còn " + days + " ngày",
+      overdue: false
+    };
+  }
+
+  function extendDeadline(roundId, addDays) {
+    var cur = new Date(S.deadlines[roundId] + "T00:00:00");
+    var base = isNaN(cur.getTime()) || cur.getTime() < Date.now() ? new Date() : cur;
+    base.setDate(base.getDate() + addDays);
+    var y = base.getFullYear();
+    var m = ("0" + (base.getMonth() + 1)).slice(-2);
+    var d = ("0" + base.getDate()).slice(-2);
+    S.deadlines[roundId] = y + "-" + m + "-" + d;
+    delete UI.dismissedAlarm[roundId];
+    delete playedSoundFor[roundId];
+    persist();
+    render();
+  }
+
+  // Render giao diện
+  var app = document.getElementById("app");
+
+  function cellHTML(l, r, roundObj, i) {
+    var arr = r[roundObj.id];
+    var on = !!arr[i];
+    var cls = "cell";
+    var step = roundObj.steps[i];
+    var tip = step.n;
+
+    if (!on && roundObj.id === "r2" && i >= 1) {
+      var d = dueAtR2(r, i);
+      var nx = nextReviewR2(r);
+      if (d != null && nx && nx.i === i) {
+        if (d <= sod(Date.now())) { cls += " due"; tip += " · đến hạn từ " + fmt(d); }
+        else { cls += " wait"; tip += " · hạn ôn " + fmt(d); }
+      }
+    }
+    if (on) tip += " · xong " + fmtY(arr[i]);
+
+    return '<button class="' + cls + '" data-act="tick" data-id="' + l.id + '" data-i="' + i + '" aria-pressed="' + on + '" aria-label="' + esc(l.title + " — " + step.n) + '" title="' + esc(tip) + '">' + (on ? CK : "") + "</button>";
+  }
+
+  function legendHTML(roundObj) {
+    return '<div class="cells legend" aria-hidden="true">' + roundObj.steps.map(function (s) {
+      return "<span>" + s.k + "</span>";
+    }).join("") + "</div>";
+  }
+
+  function rowHTML(l, roundObj) {
+    var r = rec(l.id);
+    var open = !!UI.open[l.id];
+    var arr = r[roundObj.id];
+    var doneCount = (arr[0] ? 1 : 0) + (arr[1] ? 1 : 0) + (arr[2] ? 1 : 0);
+    var full = doneCount === 3;
+    var isHard = r.lv === "hard";
+
+    var info = "";
+    if (roundObj.id === "r1") {
+      info = full ? "Đã xong Vòng 1 (nắm khung & MCQ 1)." : "Vòng 1: Đọc khung sườn → Vẽ sơ đồ → Làm 15–20 câu MCQ 1.";
+    } else if (roundObj.id === "r2") {
+      var nx = nextReviewR2(r);
+      if (full) info = "Đã hoàn thành Vòng 2.";
+      else if (nx) info = (nx.due <= sod(Date.now()) ? "Đến hạn ôn: " : "Lịch ôn tiếp theo: ") + roundObj.steps[nx.i].n + " (" + fmtY(nx.due) + ")";
+      else info = "Tick bước Tự thuật để kích hoạt lịch nhắc ôn sau 3 và 7 ngày.";
+    } else {
+      info = full ? "Đã chốt hạ Vòng 3 — Sẵn sàng thi!" : "Vòng 3: Rà nhanh bảng so sánh → Giải câu trong đề trộn → Chốt điểm mù.";
+    }
+
+    var r1c = (r.r1[0] ? 1 : 0) + (r.r1[1] ? 1 : 0) + (r.r1[2] ? 1 : 0);
+    var r2c = (r.r2[0] ? 1 : 0) + (r.r2[1] ? 1 : 0) + (r.r2[2] ? 1 : 0);
+    var r3c = (r.r3[0] ? 1 : 0) + (r.r3[1] ? 1 : 0) + (r.r3[2] ? 1 : 0);
+
+    return '<div class="row' + (full ? " done" : "") + (isHard ? " hard-row" : "") + '" data-row="' + l.id + '">' +
+      '<div class="row-main">' +
+        '<button class="ttl" data-act="open" data-id="' + l.id + '" aria-expanded="' + open + '">' +
+          '<span class="idx">' + l.idx + '</span>' +
+          '<span class="tx">' + esc(l.title) +
+            (isHard ? '<span class="badge-hard">Khó</span>' : "") +
+            (r.n ? '<span class="note-dot" title="Có ghi chú"></span>' : "") +
+            (l.sub ? "<small>" + esc(l.sub) + "</small>" : "") +
+          '</span>' +
+        '</button>' +
+        '<div class="cells">' + [0, 1, 2].map(function (i) { return cellHTML(l, r, roundObj, i); }).join("") + '</div>' +
+      '</div>' +
+      (open ? '<div class="detail">' +
+        '<div class="detail-top">' +
+          '<p>' + esc(info) + '</p>' +
+          '<div class="lv-toggle"><span>Mức độ:</span>' +
+            '<button class="lv-btn ' + (!isHard ? "active-norm" : "") + '" data-act="lv" data-id="' + l.id + '" data-lv="norm">Bình thường</button>' +
+            '<button class="lv-btn ' + (isHard ? "active-hard" : "") + '" data-act="lv" data-id="' + l.id + '" data-lv="hard">Khó / Ưu tiên</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="round-mini-stat">' +
+          '<span>Tiến độ bài này:</span>' +
+          '<span>Vòng 1: <b>' + r1c + '/3</b></span>' +
+          '<span>Vòng 2: <b>' + r2c + '/3</b></span>' +
+          '<span>Vòng 3: <b>' + r3c + '/3</b></span>' +
+        '</div>' +
+        '<textarea data-act="note" data-id="' + l.id + '" id="n-' + l.id + '" aria-label="Ghi chú bài ' + esc(l.title) + '" placeholder="Ghi chú dùng chung cả 3 vòng: bẫy đề, câu hay sai, trang sách cần xem lại…">' + esc(r.n || "") + '</textarea>' +
+      '</div>' : "") +
+    '</div>';
+  }
+
+  function render(focus) {
+    var lessons = allLessons();
+    var today = sod(Date.now());
+    var curRound = ROUNDS.filter(function (x) { return x.id === UI.round; })[0] || ROUNDS[0];
+
+    var rStatsMap = {};
+    ROUNDS.forEach(function (ro) { rStatsMap[ro.id] = roundStats(lessons, ro.id); });
+    var curRStat = rStatsMap[curRound.id];
+    var allStat = overallStats(lessons);
+    var cdCur = getCountdownInfo(curRound.id, curRStat.pct);
+
+    // Kiểm tra cảnh báo hết giờ cho vòng hiện tại hoặc bất kỳ vòng nào quá hạn
+    var overdueRounds = ROUNDS.filter(function (ro) {
+      var st = rStatsMap[ro.id];
+      return getCountdownInfo(ro.id, st.pct).overdue;
+    });
+
+    var h = '';
+
+    // Banner cảnh báo hết giờ kiểu thông báo Pokémon
+    var activeAlarmRound = overdueRounds.filter(function (ro) { return !UI.dismissedAlarm[ro.id]; })[0];
+    if (activeAlarmRound) {
+      var stAlarm = rStatsMap[activeAlarmRound.id];
+      if (!playedSoundFor[activeAlarmRound.id]) {
+        playedSoundFor[activeAlarmRound.id] = true;
+        playChime();
+        triggerSystemNotify(activeAlarmRound);
+      }
+      var nextRoundId = activeAlarmRound.id === "r1" ? "r2" : (activeAlarmRound.id === "r2" ? "r3" : null);
+      h += '<div class="alarm-banner" role="alert">' +
+        '<div class="alarm-head">' +
+          '<strong>! CẢNH BÁO HẾT THỜI GIAN ' + activeAlarmRound.short.toUpperCase() + ' !</strong>' +
+          '<button class="btn-pk" data-act="dismiss-alarm" data-id="' + activeAlarmRound.id + '">Đóng nhắc nhở</button>' +
+        '</div>' +
+        '<div class="alarm-body">' + esc(activeAlarmRound.title) + ' đã chạm mốc hạn chót (' + fmtY(eod(S.deadlines[activeAlarmRound.id])) + ') với tiến độ <b>' + stAlarm.pct + '%</b> (' + stAlarm.doneLessons + '/120 bài hoàn thành).</div>' +
+        '<div class="alarm-actions">' +
+          '<button class="btn-pk" data-act="extend" data-id="' + activeAlarmRound.id + '" data-days="7">+ Gia hạn 7 ngày</button>' +
+          '<button class="btn-pk" data-act="extend" data-id="' + activeAlarmRound.id + '" data-days="14">+ Gia hạn 14 ngày</button>' +
+          (nextRoundId ? '<button class="btn-pk primary" data-act="round" data-id="' + nextRoundId + '">Chuyển sang ' + (nextRoundId === "r2" ? "Vòng 2" : "Vòng 3") + ' →</button>' : '') +
+        '</div>' +
+      '</div>';
+    }
+
+    // Header
+    h += '<header class="top">' +
+      '<div>' +
+        '<h1>Sổ Nhiệm Vụ Nội Trú</h1>' +
+        '<div class="sub">120 bài · 6 môn · Lộ trình 3 vòng ôn thi BSNT</div>' +
+      '</div>' +
+      '<div class="top-right">' +
+        '<button class="sound-btn ' + (UI.sound ? "on" : "") + '" data-act="toggle-sound" title="Bật/tắt âm báo hết giờ & thông báo">' +
+          (UI.sound ? "🔔 Âm báo: BẬT" : "🔕 Âm báo: TẮT") +
+        '</button>' +
+      '</div>' +
+    '</header>';
+
+    // 3 Tab Vòng lớn
+    h += '<nav class="round-tabs" aria-label="Chọn vòng ôn tập">' +
+      ROUNDS.map(function (ro) {
+        var st = rStatsMap[ro.id];
+        var cd = getCountdownInfo(ro.id, st.pct);
+        return '<button class="rtab' + (cd.overdue ? " overdue" : "") + '" data-act="round" data-id="' + ro.id + '" aria-selected="' + (UI.round === ro.id) + '">' +
+          '<div class="rtab-title"><span>' + ro.short + '</span>' + (cd.overdue ? '<span class="badge-over">Hết giờ</span>' : '<span>' + st.pct + '%</span>') + '</div>' +
+          '<div class="rtab-sub">' + esc(ro.title.replace(/^Vòng \d:\s*/, "")) + '</div>' +
+          '<div class="rtab-meta"><span>' + st.doneLessons + '/120 bài</span><span>' + cd.shortText + '</span></div>' +
+        '</button>';
+      }).join("") +
+    '</nav>';
+
+    // Đồng hồ đếm ngược vòng hiện tại + Tiến độ
+    h += '<section class="sum" aria-label="Đồng hồ và tiến độ">' +
+      '<div class="clock-row">' +
+        '<div class="clock-left">' +
+          '<span class="clock-label">Thời gian còn lại của ' + esc(curRound.title) + '</span>' +
+          '<span class="clock-val' + (cdCur.overdue ? " over" : "") + '" id="cd-clock">' + esc(cdCur.text) + '</span>' +
+        '</div>' +
+        '<div class="clock-right">' +
+          '<label for="round-deadline">Hạn chót ' + esc(curRound.short) + ':</label>' +
+          '<input type="date" id="round-deadline" value="' + esc(S.deadlines[curRound.id]) + '">' +
+        '</div>' +
+      '</div>' +
+      '<div class="sum-bars">' +
+        '<div class="sum-box">' +
+          '<div class="sum-head"><b>' + curRStat.pct + '%</b><span>' + curRound.short + ': xong ' + curRStat.doneLessons + '/120 bài</span></div>' +
+          '<div class="bar"><i style="width:' + curRStat.pct + '%"></i></div>' +
+        '</div>' +
+        '<div class="sum-box">' +
+          '<div class="sum-head"><b>' + allStat.pct + '%</b><span>Tổng cả 3 vòng (' + allStat.doneCells + '/' + allStat.totalCells + ' bước)</span></div>' +
+          '<div class="bar"><i style="width:' + allStat.pct + '%; --c: var(--ok)"></i></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sub-grid">' +
+        SUBJECTS.map(function (sb) {
+          var subLessons = lessons.filter(function (l) { return l.sb.id === sb.id; });
+          var sst = roundStats(subLessons, curRound.id);
+          var isAct = UI.subj === sb.id;
+          return '<button class="sub-mini ' + sb.cls + (isAct ? " active" : "") + '" data-act="pick-subj" data-id="' + sb.id + '">' +
+            '<p><span>' + esc(sb.shortName) + '</span><b>' + sst.pct + '%</b></p>' +
+            '<div class="bar"><i style="width:' + sst.pct + '%"></i></div>' +
+          '</button>';
+        }).join("") +
+      '</div>' +
+    '</section>';
+
+    // Nhắc ôn ngắt quãng 3-7 ngày khi ở Vòng 2
+    if (curRound.id === "r2") {
+      var dueList = [];
+      lessons.forEach(function (l) {
+        var n = isDueR2(rec(l.id));
+        if (n) dueList.push({ l: l, n: n });
+      });
+      dueList.sort(function (a, b) { return a.n.due - b.n.due; });
+      h += '<section class="due' + (dueList.length ? " has" : "") + '" aria-label="Cần ôn lại Vòng 2">' +
+        '<h2>Nhiệm vụ Vòng 2 đến hạn hôm nay' + (dueList.length ? "<em>" + dueList.length + "</em>" : "") + '</h2>';
+      if (dueList.length) {
+        h += '<div class="chips">' + dueList.slice(0, 10).map(function (d) {
+          var late = Math.round((today - d.n.due) / DAY);
+          return '<button class="chip ' + d.l.sb.cls + '" data-act="goto" data-id="' + d.l.id + '">' +
+            esc(d.l.title) + '<small>' + curRound.steps[d.n.i].k + (late > 0 ? " · trễ " + late + "d" : "") + '</small>' +
+          '</button>';
+        }).join("") + '</div>';
+      } else {
+        h += '<p>Chưa có bài Vòng 2 đến hạn. Khi bạn tick <b>Tự thuật</b>, app sẽ tự hẹn <b>Đề sâu</b> (+3 ngày) và <b>Chốt bẫy</b> (+7 ngày).</p>';
+      }
+      h += '</section>';
+    }
+
+    // Bộ lọc cặp môn, môn học & trạng thái
+    var visibleSubjects = SUBJECTS.filter(function (sb) {
+      return UI.pair === "all" || sb.pair === UI.pair;
+    });
+    if (!visibleSubjects.some(function (sb) { return sb.id === UI.subj; })) {
+      UI.subj = visibleSubjects[0].id;
+    }
+
+    h += '<div class="filter-panel">' +
+      '<div class="pair-pills" role="group" aria-label="Lọc theo cặp môn đan xen">' +
+        PAIRS.map(function (p) {
+          return '<button class="pill" data-act="pair" data-id="' + p.id + '" aria-pressed="' + (UI.pair === p.id) + '">' + esc(p.label) + '</button>';
+        }).join("") +
+      '</div>' +
+      '<div class="filter-row">' +
+        '<div class="subj-tabs" role="tablist">' +
+          visibleSubjects.map(function (sb) {
+            var subLessons = lessons.filter(function (l) { return l.sb.id === sb.id; });
+            var sst = roundStats(subLessons, curRound.id);
+            return '<button class="stab ' + sb.cls + '" role="tab" data-act="subj" data-id="' + sb.id + '" aria-selected="' + (UI.subj === sb.id) + '">' +
+              esc(sb.shortName) + '<small>' + sst.doneLessons + '/20</small>' +
+            '</button>';
+          }).join("") +
+        '</div>' +
+        '<div class="status-filters">' +
+          [
+            ["all", "Tất cả"],
+            ["todo", "Chưa xong"],
+            ["doing", "Đang học dở"],
+            ["hard", "Khó / Ưu tiên"]
+          ].map(function (f) {
+            return '<button data-act="filter" data-id="' + f[0] + '" aria-pressed="' + (UI.filter === f[0]) + '">' + f[1] + '</button>';
+          }).join("") +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+    // Danh sách 20 bài của môn đang chọn
+    var activeSb = SUBJECTS.filter(function (x) { return x.id === UI.subj; })[0] || SUBJECTS[0];
+    var sbLessons = lessons.filter(function (l) { return l.sb.id === activeSb.id; });
+    var sbStat = roundStats(sbLessons, curRound.id);
+
+    var rowsH = "";
+    var shownCount = 0;
+    sbLessons.forEach(function (l) {
+      var r = rec(l.id);
+      var arr = r[curRound.id];
+      var c = (arr[0] ? 1 : 0) + (arr[1] ? 1 : 0) + (arr[2] ? 1 : 0);
+      if (UI.filter === "todo" && c === 3) return;
+      if (UI.filter === "doing" && (c === 0 || c === 3)) return;
+      if (UI.filter === "hard" && r.lv !== "hard") return;
+      rowsH += rowHTML(l, curRound);
+      shownCount++;
+    });
+
+    var listInner = shownCount
+      ? '<div class="grp">' +
+          '<div class="gh">' +
+            '<div><strong>' + esc(activeSb.name) + '<span>' + sbStat.doneLessons + '/20 bài xong ' + curRound.short + '</span></strong>' +
+            '<span class="pair-tag">' + esc(activeSb.pairName) + ' · ' + esc(curRound.desc) + '</span></div>' +
+            legendHTML(curRound) +
+          '</div>' +
+          rowsH +
+        '</div>'
+      : '<div class="empty">Không có bài nào khớp bộ lọc hiện tại ở ' + esc(activeSb.name) + ' (' + esc(curRound.short) + ').</div>';
+
+    h += '<main class="list ' + activeSb.cls + '">' + listInner + '<div class="src">' + esc(activeSb.src) + '</div></main>';
+
+    // Footer + Xuất/Nhập backup JSON
+    h += '<footer class="foot">' +
+      '<span id="status">' + esc(lastStatus) + '</span>' +
+      '<div class="backup-btns">' +
+        '<button data-act="export" title="Tải file sao lưu tiến độ .json">Xuất backup (.json)</button>' +
+        '<button data-act="import" title="Khôi phục tiến độ từ file .json">Nhập backup</button>' +
+      '</div>' +
+    '</footer>';
+
+    app.innerHTML = h;
+
+    if (focus) {
+      var sel = '[data-id="' + focus.id + '"]' + (focus.i != null ? '[data-i="' + focus.i + '"]' : '[data-act="' + focus.act + '"]');
+      var el = app.querySelector(sel);
+      if (el) el.focus();
+    }
+  }
+
+  // Cập nhật đồng hồ đếm ngược mỗi giây mà không render lại toàn bộ DOM
+  setInterval(function () {
+    var clockEl = document.getElementById("cd-clock");
+    if (!clockEl) return;
+    var lessons = allLessons();
+    var st = roundStats(lessons, UI.round);
+    var cd = getCountdownInfo(UI.round, st.pct);
+    clockEl.textContent = cd.text;
+    if (cd.overdue) {
+      clockEl.classList.add("over");
+      if (!playedSoundFor[UI.round]) render();
+    } else {
+      clockEl.classList.remove("over");
+    }
+  }, 1000);
+
+  // Sự kiện tương tác
+  app.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]");
+    if (!b) return;
+    var act = b.getAttribute("data-act");
+    var id = b.getAttribute("data-id");
+
+    if (act === "tick") {
+      var i = +b.getAttribute("data-i");
+      var r = ensure(id);
+      var arr = r[UI.round];
+      arr[i] = arr[i] ? null : Date.now();
+      persist();
+      render({ id: id, i: i });
+    } else if (act === "open") {
+      UI.open[id] = !UI.open[id];
+      render({ id: id, act: "open" });
+      if (UI.open[id]) {
+        var ta = document.getElementById("n-" + id);
+        if (ta) ta.focus();
+      }
+    } else if (act === "round") {
+      UI.round = id;
+      saveUI();
+      render({ id: id, act: "round" });
+    } else if (act === "pair") {
+      UI.pair = id;
+      saveUI();
+      render({ id: id, act: "pair" });
+    } else if (act === "subj" || act === "pick-subj") {
+      UI.subj = id;
+      if (act === "pick-subj") UI.pair = "all";
+      saveUI();
+      render({ id: id, act: "subj" });
+    } else if (act === "filter") {
+      UI.filter = id;
+      saveUI();
+      render({ id: id, act: "filter" });
+    } else if (act === "lv") {
+      var lv = b.getAttribute("data-lv");
+      ensure(id).lv = lv;
+      persist();
+      render({ id: id, act: "lv" });
+    } else if (act === "goto") {
+      var l = allLessons().filter(function (x) { return x.id === id; })[0];
+      if (l) {
+        UI.pair = "all";
+        UI.subj = l.sb.id;
+        UI.filter = "all";
+        UI.open[id] = true;
+        saveUI();
+        render();
+        var row = app.querySelector('[data-row="' + id + '"]');
+        if (row) row.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+    } else if (act === "dismiss-alarm") {
+      UI.dismissedAlarm[id] = true;
+      render();
+    } else if (act === "extend") {
+      var days = +b.getAttribute("data-days") || 7;
+      extendDeadline(id, days);
+    } else if (act === "toggle-sound") {
+      UI.sound = !UI.sound;
+      saveUI();
+      if (UI.sound) {
+        playChime();
+        if ("Notification" in window && Notification.permission === "default") {
+          Notification.requestPermission();
+        }
+      }
+      render();
+    } else if (act === "export") {
+      var blob = new Blob([JSON.stringify(payload(), null, 2)], { type: "application/json" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "checklist-noi-tru-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+      a.click();
+      URL.revokeObjectURL(url);
+      setStatus("Đã xuất file backup .json");
+    } else if (act === "import") {
+      document.getElementById("import-file").click();
+    }
+  });
+
+  app.addEventListener("input", function (e) {
+    var t = e.target;
+    if (t.getAttribute("data-act") === "note") {
+      ensure(t.getAttribute("data-id")).n = t.value;
+      persist();
+    }
+  });
+
+  app.addEventListener("change", function (e) {
+    if (e.target.id === "round-deadline" && e.target.value) {
+      S.deadlines[UI.round] = e.target.value;
+      delete UI.dismissedAlarm[UI.round];
+      delete playedSoundFor[UI.round];
+      persist();
+      render();
+    }
+  });
+
+  document.getElementById("import-file").addEventListener("change", function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      try {
+        var parsed = JSON.parse(ev.target.result);
+        hydrateData(parsed);
+        persist();
+        render();
+        setStatus("Đã khôi phục dữ liệu từ file backup!");
+      } catch (err) {
+        alert("File backup không hợp lệ.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+
+  render();
+  setStatus("Đang tải tiến độ…");
+
+  // Kết nối bộ lưu trữ Claude nếu chạy trong môi trường Claude Artifacts
+  (function () {
+    var c = window.claude;
+    if (!c || !c.use) { setStatus("Lưu cục bộ trên trình duyệt/máy"); return; }
+    Promise.all([c.use("db"), c.use("user")]).then(function (r) {
+      var dbm = r[0], user = r[1];
+      return (user && user.id ? user.id() : Promise.resolve(null)).then(function (uid) {
+        if (!dbm || !uid) { setStatus("Lưu cục bộ trên trình duyệt/máy"); return; }
+        ref = dbm.doc("data/users/" + uid + "/progress");
+        var wait = setTimeout(function () { setStatus("Đang dùng bản lưu trên máy này"); }, 10000);
+        ref.onSnapshot(function (snap) {
+          if (!snap.metadata.fromCache) clearTimeout(wait);
+          if (timer || writing || snap.metadata.hasPendingWrites) return;
+          if (snap.exists) {
+            var d = JSON.parse(JSON.stringify(snap.data()));
+            hydrateData(d);
+            saveLocal();
+            if (!(document.activeElement && document.activeElement.tagName === "TEXTAREA")) render();
+          }
+          setStatus("Đã đồng bộ");
+        }, function () {
+          clearTimeout(wait);
+          setStatus("Đang dùng bản lưu trên máy này");
+        });
+      });
+    }).catch(function () { setStatus("Lưu cục bộ trên trình duyệt/máy"); });
+  })();
+})();
+</script>
+
+<script>
+// Đăng ký service worker (dùng offline) và lời mời cài đặt (Android/Chrome/máy tính)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+}
+(function () {
+  var deferred = null;
+  var bar = document.getElementById("installBar");
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault(); deferred = e;
+    if (!localStorage.getItem("ckl-install-dismissed")) bar.style.display = "flex";
+  });
+  document.getElementById("installBtn").addEventListener("click", function () {
+    bar.style.display = "none";
+    if (deferred) { deferred.prompt(); deferred = null; }
+  });
+  document.getElementById("installClose").addEventListener("click", function () {
+    bar.style.display = "none";
+    try { localStorage.setItem("ckl-install-dismissed", "1"); } catch (e) {}
+  });
+  window.addEventListener("appinstalled", function () { bar.style.display = "none"; });
+})();
+</script>
+</body>
+</html>
